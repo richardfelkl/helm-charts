@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "cicd-openldap.fullname" . }}
+  labels:
+    app: {{ template "cicd-openldap.name" . }}
+    chart: {{ template "cicd-openldap.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "cicd-openldap.name" . }}
+    release: {{ .Release.Name }}

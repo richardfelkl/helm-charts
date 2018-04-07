@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "cicd-jenkins.fullname" . }}
+  labels:
+    app: {{ template "cicd-jenkins.name" . }}
+    chart: {{ template "cicd-jenkins.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  clusterIP: 10.254.34.10
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+    - port: 50000
+      targetPort: 50000
+      name: slave-listener
+  selector:
+    app: {{ template "cicd-jenkins.name" . }}
+    release: {{ .Release.Name }}
