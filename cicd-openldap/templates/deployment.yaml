@@ -30,6 +30,56 @@ spec:
             - name: ldaps
               containerPort: 636
               protocol: TCP
+          env:
+            - name: HOSTNAME
+              value: ldap01.{{ .Values.settings.domain }}
+            - name: LDAP_ORGANISATION
+              value: {{ .Values.settings.organisation }}
+            - name: LDAP_DOMAIN
+              value: {{ .Values.settings.domain }}
+            - name: LDAP_ADMIN_PASSWORD
+              value: {{ .Values.settings.admin-password }}
+            - name: LDAP_CONFIG_PASSWORD
+              value: {{ .Values.settings.config-password }}
+            - name: LDAP_TLS
+              value: {{ .Values.settings.tls }}
+          volumeMounts:
+            - mountPath: /var/lib/ldap
+              name: ldap-database
+            - mountPath: /etc/ldap/slapd.d
+              name: ldap-config
+          resources:
+{{ toYaml .Values.server-resources | indent 12 }}
+    {{- with .Values.server-nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.server-affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.server-tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+        - name: {{ .Chart.Name }}-admin
+          image: "{{ .Values.admin-image.repository }}:{{ .Values.admin-image.tag }}"
+          imagePullPolicy: {{ .Values.admin-image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          env:
+            - name: PHPLDAPADMIN_LDAP_HOSTS
+              value: "#PYTHON2BASH:[{'server': [{'server': [{'tls': False}]},{'login': [{'bind_id': 'cn=admin,{{ .Values.settings.dn }}'},{'bind_pass': '{{ .Values.settings.admin-password }}'}]}]}]"
+            - name: PHPLDAPADMIN_HTTPS
+              value: "false"
+            - name: PHPLDAPADMIN_TRUST_PROXY_SSL
+              value: "true"
+            - name: PHPLDAPADMIN_SERVER_ADMIN
+              value: {{ .Values.settings.admin-email}}
+            - name: PHPLDAPADMIN_THEME
+              value: mirantis
           livenessProbe:
             httpGet:
               path: /
@@ -39,16 +89,23 @@ spec:
               path: /
               port: http
           resources:
-{{ toYaml .Values.resources | indent 12 }}
-    {{- with .Values.nodeSelector }}
+{{ toYaml .Values.admin-resources | indent 12 }}
+    {{- with .Values.admin-nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.affinity }}
+    {{- with .Values.admin-affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.tolerations }}
+    {{- with .Values.admin-tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+      volumes:
+      - name: ldap-database
+        hostPath:
+          path: /srv/volumes/openldap/database
+      - name: ldap-config
+        hostPath:
+          path: /srv/volumes/openldap/config

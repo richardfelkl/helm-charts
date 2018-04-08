@@ -8,12 +8,16 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.server-service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - port: {{ .Values.server-service.ldap-public-port }}
+      targetPort: ldap
       protocol: TCP
-      name: http
+      name: ldap
+    - port: {{ .Values.server-service.ldaps-public-port }}
+      targetPort: ldaps
+      protocol: TCP
+      name: ldaps
   selector:
     app: {{ template "cicd-openldap.name" . }}
     release: {{ .Release.Name }}
