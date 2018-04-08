@@ -1,21 +1,21 @@
 replicaCount: 1
 
-server-image:
+serverImage:
   repository: osixia/openldap
   tag: 1.1.8
   pullPolicy: IfNotPresent
 
-server-service:
+serverService:
   type: ClusterIP
-  ldap-public-port: 1389
-  ldaps-public-port: 1636
+  ldapPublicPort: 1389
+  ldapsPublicPort: 1636
 
 settings:
   domain: mcp-drivetrain.local
   organisation: mcp-drivetrain
-  admin-password: r00tme
-  admin-email: admin@localhost
-  config-password: r00tme
+  adminPassword: r00tme
+  adminEmail: admin@localhost
+  configPassword: r00tme
   tls: "false"
 
 ingress:
@@ -26,27 +26,27 @@ ingress:
     - chart-example.local
   tls: []
 
-server-resources: {}
+serverResources: {}
 
-server-nodeSelector: {}
+serverNodeSelector: {}
 
-server-tolerations: []
+serverTolerations: []
 
-server-affinity: {}
+serverAffinity: {}
 
-admin-image:
+adminImage:
   repository: tcpcloud/phpldapadmin
   tag: 0.6.12
   pullPolicy: IfNotPresent
 
-admin-service:
+adminService:
   type: ClusterIP
-  admin-public-port: 18089
+  adminPublicPort: 18089
 
-admin-resources: {}
+adminResources: {}
 
-admin-nodeSelector: {}
+adminNodeSelector: {}
 
-admin-tolerations: []
+adminTolerations: []
 
-admin-affinity: {}
+adminAffinity: {}

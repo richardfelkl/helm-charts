@@ -8,13 +8,13 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  type: {{ .Values.server-service.type }}
+  type: {{ .Values.serverService.type }}
   ports:
-    - port: {{ .Values.server-service.ldap-public-port }}
+    - port: {{ .Values.serverService.ldapPublicPort }}
       targetPort: ldap
       protocol: TCP
       name: ldap
-    - port: {{ .Values.server-service.ldaps-public-port }}
+    - port: {{ .Values.serverService.ldapsPublicPort }}
       targetPort: ldaps
       protocol: TCP
       name: ldaps

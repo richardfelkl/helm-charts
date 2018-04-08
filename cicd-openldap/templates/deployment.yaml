@@ -21,8 +21,8 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}-server
-          image: "{{ .Values.server-image.repository }}:{{ .Values.server-image.tag }}"
-          imagePullPolicy: {{ .Values.server-image.pullPolicy }}
+          image: "{{ .Values.serverImage.repository }}:{{ .Values.serverImage.tag }}"
+          imagePullPolicy: {{ .Values.serverImage.pullPolicy }}
           ports:
             - name: ldap
               containerPort: 389
@@ -38,46 +38,46 @@ spec:
             - name: LDAP_DOMAIN
               value: {{ .Values.settings.domain }}
             - name: LDAP_ADMIN_PASSWORD
-              value: {{ .Values.settings.admin-password }}
+              value: {{ .Values.settings.adminPassword }}
             - name: LDAP_CONFIG_PASSWORD
-              value: {{ .Values.settings.config-password }}
+              value: {{ .Values.settings.configPassword }}
             - name: LDAP_TLS
               value: {{ .Values.settings.tls }}
           volumeMounts:
             - mountPath: /var/lib/ldap
-              name: ldap-database
+              name: ldapDatabase
             - mountPath: /etc/ldap/slapd.d
-              name: ldap-config
+              name: ldapConfig
           resources:
-{{ toYaml .Values.server-resources | indent 12 }}
-    {{- with .Values.server-nodeSelector }}
+{{ toYaml .Values.serverResources | indent 12 }}
+    {{- with .Values.serverNodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.server-affinity }}
+    {{- with .Values.serverAffinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.server-tolerations }}
+    {{- with .Values.serverTolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
         - name: {{ .Chart.Name }}-admin
-          image: "{{ .Values.admin-image.repository }}:{{ .Values.admin-image.tag }}"
-          imagePullPolicy: {{ .Values.admin-image.pullPolicy }}
+          image: "{{ .Values.adminImage.repository }}:{{ .Values.adminImage.tag }}"
+          imagePullPolicy: {{ .Values.adminImage.pullPolicy }}
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
           env:
             - name: PHPLDAPADMIN_LDAP_HOSTS
-              value: "#PYTHON2BASH:[{'server': [{'server': [{'tls': False}]},{'login': [{'bind_id': 'cn=admin,{{ .Values.settings.dn }}'},{'bind_pass': '{{ .Values.settings.admin-password }}'}]}]}]"
+              value: "#PYTHON2BASH:[{'server': [{'server': [{'tls': False}]},{'login': [{'bind_id': 'cn=admin,{{ .Values.settings.domain }}'},{'bind_pass': '{{ .Values.settings.adminPassword }}'}]}]}]"
             - name: PHPLDAPADMIN_HTTPS
               value: "false"
             - name: PHPLDAPADMIN_TRUST_PROXY_SSL
               value: "true"
             - name: PHPLDAPADMIN_SERVER_ADMIN
-              value: {{ .Values.settings.admin-email}}
+              value: {{ .Values.settings.adminEmail}}
             - name: PHPLDAPADMIN_THEME
               value: mirantis
           livenessProbe:
@@ -89,23 +89,23 @@ spec:
               path: /
               port: http
           resources:
-{{ toYaml .Values.admin-resources | indent 12 }}
-    {{- with .Values.admin-nodeSelector }}
+{{ toYaml .Values.adminResources | indent 12 }}
+    {{- with .Values.adminNodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.admin-affinity }}
+    {{- with .Values.adminAffinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.admin-tolerations }}
+    {{- with .Values.adminTolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
       volumes:
-      - name: ldap-database
+      - name: ldapDatabase
         hostPath:
           path: /srv/volumes/openldap/database
-      - name: ldap-config
+      - name: ldapConfig
         hostPath:
           path: /srv/volumes/openldap/config
