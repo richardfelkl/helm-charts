@@ -1,0 +1,138 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "cicd-gerrit.fullname" . }}
+  labels:
+    app: {{ template "cicd-gerrit.name" . }}
+    chart: {{ template "cicd-gerrit.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "cicd-gerrit.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "cicd-gerrit.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-server
+          image: "{{ .Values.serverImage.repository }}:{{ .Values.serverImage.tag }}"
+          imagePullPolicy: {{ .Values.serverImage.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: ssh
+              containerPort: 29418
+              protocol: TCP
+          env:
+            - name: DATABASE_TYPE:
+              value: "mysql"
+            - name: DB_PORT_3306_TCP_ADDR:
+              value: {{ .Values.databaseService.ip }}
+            - name: DB_ENV_MYSQL_USER:
+              value: gerrit
+            - name: DB_ENV_MYSQL_PASSWORD:
+              value: {{ .Values.options.mysqlGerritPassword }}
+            - name: DB_ENV_MYSQL_DB:
+              value: gerrit
+            - name: AUTH_TYPE:
+              value: {{ .Values.options.authType }}
+            - name: LDAP_SERVER:
+              value: {{ .Values.options.ldapServer }}
+            - name: LDAP_ACCOUNTPATTERN:
+              value: 'uid={username}'
+            - name: LDAP_ACCOUNTBASE:
+              value: {{ .Values.options.ldapAccountBase }}
+            - name: LDAP_GROUPBASE:
+              value: {{ .Values.options.ldapGroupBasse }}
+            - name: LDAP_USERNAME:
+              value: {{ .Values.options.ldapUsername }}
+            - name: LDAP_PASSWORD:
+              value: {{ .Values.options.ldapPassword }}
+            - name: WEBURL:
+              value: {{ .Values.options.webUrl }}
+            - name: HTTPD_LISTENURL:
+              value: {{ .Values.options.httpdListenUrl }}
+            - name: GERRIT_ADMIN_SSH_PUBLIC:
+              value: {{ .Values.options.gerritAdminPubKey }}
+            - name: GERRIT_ADMIN_PWD:
+              value: {{ .Values.options.gerritAdminPassword }}
+            - name: GERRIT_ADMIN_EMAIL:
+              value: {{ .Values.options.gerritAdminEmail }}
+            - name: CANLOADINIFRAME:
+              value: "true"
+            - name: JAVA_OPTIONS:
+              value: {{ .Values.options.javaOpts }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+            - mountPath: /var/gerrit/review_site
+              name: review-site
+          resources:
+{{ toYaml .Values.serverResources | indent 12 }}
+    {{- with .Values.serverNodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.serverAffinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.serverTolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+        - name: {{ .Chart.Name }}-database
+          image: "{{ .Values.databasemage.repository }}:{{ .Values.databaseImage.tag }}"
+          imagePullPolicy: {{ .Values.databaseImage.pullPolicy }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          env:
+            - name: MYSQL_USER:
+              value: {{ .Values.options.mysqlGerritUser }}
+            - name: MYSQL_PASSWORD:
+              value: {{ .Values.options.mysqlGerritPassword }}
+            - name: MYSQL_DATABASE:
+              value: {{ .Values.options.mysqlGerritDatabase }}
+            - name: MYSQL_ROOT_PASSWORD:
+              value: {{ .Values.options.mysqlRootPassword }}
+            - name: MYSQL_START_TIMEOUT:
+              value: 300
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: gerrit-database
+          resources:
+{{ toYaml .Values.databaseResources | indent 12 }}
+    {{- with .Values.databaseNodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.databaseAffinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.databaseTolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      volumes:
+      - name: review-site
+        hostPath:
+          path: /srv/volumes/gerrit
+      - name: gerrit-database
+        hostPath:
+          path: /srv/volumes/mysql

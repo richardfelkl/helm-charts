@@ -1,0 +1,64 @@
+replicaCount: 1
+
+serverImage:
+  repository: tcpcloud/gerrit
+  tag: 2.13.6
+  pullPolicy: IfNotPresent
+
+serverService:
+  ip: "10.254.34.12"
+  type: ClusterIP
+  httpPort: 8080
+  sshPort: 29418
+
+settings:
+  authType: LDAP
+  ldapServer: "ldap://10.254.34.11"
+  ldapAccountBase: "ou=people,dc=mcp-drivetrain,dc=local"
+  ldapGroupBasse: "ou=groups,dc=mcp-drivetrain,dc=local"
+  ldapUsername: admin
+  ldapPassword: r00tme
+  webUrl: "http://10.254.34.12:8080"
+  httpdListenUrl: "http://*:8080/"
+  gerritAdminPubKey:
+  gerritAdminPassword: r00tme
+  gerritAdminEmail: admin@localhost
+  mysqlGerritPassword: r00tme
+  mysqlGerritUser: gerrit
+  mysqlGerritDatabase: gerrit
+  mysqlRootPassword: r00tme
+  javaOpts: ""
+
+ingress:
+  enabled: false
+  annotations: {}
+  path: /
+  hosts:
+    - chart-example.local
+  tls: []
+
+serverResources: {}
+
+serverNodeSelector: {}
+
+serverTolerations: []
+
+serverAffinity: {}
+
+databaseImage:
+  repository: tcpcloud/mysql
+  tag: 5.6
+  pullPolicy: IfNotPresent
+
+databaseService:
+  type: ClusterIP
+  ip: "10.254.34.13"
+  port: 3306
+
+databaseResources: {}
+
+databaseNodeSelector: {}
+
+databaseTolerations: []
+
+databaseAffinity: {}
