@@ -32,22 +32,22 @@ spec:
               protocol: TCP
           env:
             - name: HOSTNAME
-              value: ldap01.{{ .Values.settings.domain }}
+              value: "ldap01.{{ .Values.settings.domain }}"
             - name: LDAP_ORGANISATION
-              value: {{ .Values.settings.organisation }}
+              value: "{{ .Values.settings.organisation }}"
             - name: LDAP_DOMAIN
-              value: {{ .Values.settings.domain }}
+              value: "{{ .Values.settings.domain }}"
             - name: LDAP_ADMIN_PASSWORD
-              value: {{ .Values.settings.adminPassword }}
+              value: "{{ .Values.settings.adminPassword }}"
             - name: LDAP_CONFIG_PASSWORD
-              value: {{ .Values.settings.configPassword }}
+              value: "{{ .Values.settings.configPassword }}"
             - name: LDAP_TLS
-              value: {{ .Values.settings.tls }}
+              value: "{{ .Values.settings.tls }}"
           volumeMounts:
             - mountPath: /var/lib/ldap
-              name: ldapDatabase
+              name: ldap-database
             - mountPath: /etc/ldap/slapd.d
-              name: ldapConfig
+              name: ldap-config
           resources:
 {{ toYaml .Values.serverResources | indent 12 }}
     {{- with .Values.serverNodeSelector }}
@@ -71,7 +71,7 @@ spec:
               protocol: TCP
           env:
             - name: PHPLDAPADMIN_LDAP_HOSTS
-              value: "#PYTHON2BASH:[{'server': [{'server': [{'tls': False}]},{'login': [{'bind_id': 'cn=admin,{{ .Values.settings.domain }}'},{'bind_pass': '{{ .Values.settings.adminPassword }}'}]}]}]"
+              value: "#PYTHON2BASH:[{'server': [{'server': [{'tls': False}]},{'login': [{'bind_id': 'cn=admin,{{ .Values.settings.dn }}'},{'bind_pass': '{{ .Values.settings.adminPassword }}'}]}]}]"
             - name: PHPLDAPADMIN_HTTPS
               value: "false"
             - name: PHPLDAPADMIN_TRUST_PROXY_SSL
@@ -103,9 +103,9 @@ spec:
 {{ toYaml . | indent 8 }}
     {{- end }}
       volumes:
-      - name: ldapDatabase
+      - name: ldap-database
         hostPath:
           path: /srv/volumes/openldap/database
-      - name: ldapConfig
+      - name: ldap-config
         hostPath:
           path: /srv/volumes/openldap/config

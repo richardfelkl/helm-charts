@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "cicd-openldap.fullname" . }}
+  name: {{ template "cicd-openldap.fullname" . }}-server
   labels:
     app: {{ template "cicd-openldap.name" . }}
     chart: {{ template "cicd-openldap.chart" . }}
@@ -9,6 +9,7 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   type: {{ .Values.serverService.type }}
+  clusterIP: 10.254.34.11
   ports:
     - port: {{ .Values.serverService.ldapPublicPort }}
       targetPort: ldap

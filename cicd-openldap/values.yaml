@@ -7,11 +7,12 @@ serverImage:
 
 serverService:
   type: ClusterIP
-  ldapPublicPort: 1389
-  ldapsPublicPort: 1636
+  ldapPublicPort: 389
+  ldapsPublicPort: 636
 
 settings:
   domain: mcp-drivetrain.local
+  dn: "dc=mcp-drivetrain,dc=local"
   organisation: mcp-drivetrain
   adminPassword: r00tme
   adminEmail: admin@localhost
@@ -41,7 +42,7 @@ adminImage:
 
 adminService:
   type: ClusterIP
-  adminPublicPort: 18089
+  adminPublicPort: 8089
 
 adminResources: {}
 
