@@ -31,44 +31,44 @@ spec:
               containerPort: 29418
               protocol: TCP
           env:
-            - name: DATABASE_TYPE:
+            - name: DATABASE_TYPE
               value: "mysql"
-            - name: DB_PORT_3306_TCP_ADDR:
-              value: {{ .Values.databaseService.ip }}
-            - name: DB_ENV_MYSQL_USER:
-              value: gerrit
-            - name: DB_ENV_MYSQL_PASSWORD:
-              value: {{ .Values.options.mysqlGerritPassword }}
-            - name: DB_ENV_MYSQL_DB:
-              value: gerrit
-            - name: AUTH_TYPE:
-              value: {{ .Values.options.authType }}
-            - name: LDAP_SERVER:
-              value: {{ .Values.options.ldapServer }}
-            - name: LDAP_ACCOUNTPATTERN:
+            - name: DB_PORT_3306_TCP_ADDR
+              value: {{ template "cicd-gerrit.fullname" . }}-database
+            - name: DB_ENV_MYSQL_USER
+              value: "gerrit"
+            - name: DB_ENV_MYSQL_PASSWORD
+              value: "{{ .Values.settings.mysqlGerritPassword }}"
+            - name: DB_ENV_MYSQL_DB
+              value: "gerrit"
+            - name: AUTH_TYPE
+              value: "{{ .Values.settings.authType }}"
+            - name: LDAP_SERVER
+              value: "{{ .Values.settings.ldapServer }}"
+            - name: LDAP_ACCOUNTPATTERN
               value: 'uid={username}'
-            - name: LDAP_ACCOUNTBASE:
-              value: {{ .Values.options.ldapAccountBase }}
-            - name: LDAP_GROUPBASE:
-              value: {{ .Values.options.ldapGroupBasse }}
-            - name: LDAP_USERNAME:
-              value: {{ .Values.options.ldapUsername }}
-            - name: LDAP_PASSWORD:
-              value: {{ .Values.options.ldapPassword }}
-            - name: WEBURL:
-              value: {{ .Values.options.webUrl }}
-            - name: HTTPD_LISTENURL:
-              value: {{ .Values.options.httpdListenUrl }}
-            - name: GERRIT_ADMIN_SSH_PUBLIC:
-              value: {{ .Values.options.gerritAdminPubKey }}
-            - name: GERRIT_ADMIN_PWD:
-              value: {{ .Values.options.gerritAdminPassword }}
-            - name: GERRIT_ADMIN_EMAIL:
-              value: {{ .Values.options.gerritAdminEmail }}
-            - name: CANLOADINIFRAME:
+            - name: LDAP_ACCOUNTBASE
+              value: "{{ .Values.settings.ldapAccountBase }}"
+            - name: LDAP_GROUPBASE
+              value: "{{ .Values.settings.ldapGroupBasse }}"
+            - name: LDAP_USERNAME
+              value: "{{ .Values.settings.ldapUsername }}"
+            - name: LDAP_PASSWORD
+              value: "{{ .Values.settings.ldapPassword }}"
+            - name: WEB_URL
+              value: "{{ .Values.settings.webUrl }}"
+            - name: HTTPD_LISTENURL
+              value: "{{ .Values.settings.httpdListenUrl }}"
+            - name: GERRIT_ADMIN_SSH_PUBLIC
+              value: "{{ .Values.settings.gerritAdminPubKey }}"
+            - name: GERRIT_ADMIN_PWD
+              value: "{{ .Values.settings.gerritAdminPassword }}"
+            - name: GERRIT_ADMIN_EMAIL
+              value: "{{ .Values.settings.gerritAdminEmail }}"
+            - name: CANLOADINIFRAME
               value: "true"
-            - name: JAVA_OPTIONS:
-              value: {{ .Values.options.javaOpts }}
+            - name: JAVA_OPTIONS
+              value: "{{ .Values.settings.javaOpts }}"
           livenessProbe:
             httpGet:
               path: /
@@ -95,26 +95,50 @@ spec:
 {{ toYaml . | indent 8 }}
     {{- end }}
         - name: {{ .Chart.Name }}-database
-          image: "{{ .Values.databasemage.repository }}:{{ .Values.databaseImage.tag }}"
+          image: "{{ .Values.databaseImage.repository }}:{{ .Values.databaseImage.tag }}"
           imagePullPolicy: {{ .Values.databaseImage.pullPolicy }}
-          ports:
-            - name: mysql
-              containerPort: 3306
-              protocol: TCP
           env:
-            - name: MYSQL_USER:
-              value: {{ .Values.options.mysqlGerritUser }}
-            - name: MYSQL_PASSWORD:
-              value: {{ .Values.options.mysqlGerritPassword }}
-            - name: MYSQL_DATABASE:
-              value: {{ .Values.options.mysqlGerritDatabase }}
-            - name: MYSQL_ROOT_PASSWORD:
-              value: {{ .Values.options.mysqlRootPassword }}
-            - name: MYSQL_START_TIMEOUT:
-              value: 300
-          volumeMounts:
-            - mountPath: /var/lib/mysql
-              name: gerrit-database
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "cicd-gerrit.fullname" . }}
+                  key: mysqlRootPassword
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "cicd-gerrit.fullname" . }}
+                  key: mysqlGerritPassword
+            - name: MYSQL_USER
+              value: {{ .Values.settings.mysqlGerritUser }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.settings.mysqlGerritDatabase }}
+            - name: MYSQL_START_TIMEOUT
+              value: "300"
+          livenessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - "mysqladmin ping -u root -p${MYSQL_ROOT_PASSWORD}"
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - "mysqladmin ping -u root -p${MYSQL_ROOT_PASSWORD}"
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+            volumeMounts:
+              - mountPath: /var/lib/mysql
+                name: gerrit-database
           resources:
 {{ toYaml .Values.databaseResources | indent 12 }}
     {{- with .Values.databaseNodeSelector }}

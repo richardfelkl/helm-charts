@@ -71,7 +71,7 @@ spec:
               protocol: TCP
           env:
             - name: PHPLDAPADMIN_LDAP_HOSTS
-              value: "#PYTHON2BASH:[{'server': [{'server': [{'tls': False},{'host':'{{ template "cicd-openldap.fullname" . }}-server'}]},{'login': [{'bind_id': 'cn=admin,{{ .Values.settings.dn }}'},{'bind_pass': '{{ .Values.settings.adminPassword }}'}]}]}]"
+              value: "#PYTHON2BASH:[{'server': [{'server': [{'tls': False},{'host':'localhost'}]},{'login': [{'bind_id': 'cn=admin,{{ .Values.settings.dn }}'},{'bind_pass': '{{ .Values.settings.adminPassword }}'}]}]}]"
             - name: PHPLDAPADMIN_HTTPS
               value: "false"
             - name: PHPLDAPADMIN_TRUST_PROXY_SSL
