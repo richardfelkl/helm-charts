@@ -9,6 +9,7 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   type: {{ .Values.adminService.type }}
+  clusterIP: {{ .Values.adminService.ip }}
   ports:
     - port: {{ .Values.adminService.adminPublicPort }}
       targetPort: http

@@ -30,20 +30,13 @@ spec:
               containerPort: 50000
           env:
             - name: JAVA_OPTS
-              value: ' -server -XX:+AlwaysPreTouch -Xloggc:/var/jenkins_home/gc-%t.log -XX:NumberOfGCLogFiles=5
-                -XX:+UseGCLogFileRotation -XX:GCLogFileSize=20m -XX:+PrintGC -XX:+PrintGCDateStamps
-                -XX:+PrintGCDetails -XX:+PrintHeapAtGC -XX:+PrintGCCause -XX:+PrintTenuringDistribution
-                -XX:+PrintReferenceGC -XX:+PrintAdaptiveSizePolicy -XX:+UseG1GC -XX:+ExplicitGCInvokesConcurrent
-                -XX:+ParallelRefProcEnabled -XX:+UseStringDeduplication -XX:+UnlockExperimentalVMOptions
-                -XX:G1NewSizePercent=20 -XX:+UnlockDiagnosticVMOptions -XX:G1SummarizeRSetStatsPeriod=1
-                -Djenkins.install.runSetupWizard=false -Dhudson.DNSMultiCast.disabled=true -Dhudson.udp=-1
-                -Dhudson.footerURL=https://www.mirantis.com '
+              value:  {{ .Values.settings.javaOpts }}
             - name: JENKINS_OPTS
-              value: " --handlerCountMax=40"
+              value: {{ .Values.settings.jenkinsOpts }}
             - name: ADMIN_PASSWORD
-              value: r00tme
+              value: {{ .Values.settings.admin }}
             - name: ADMIN_USER
-              value: admin
+              value: {{ .Values.settings.r00tme }}
           livenessProbe:
             httpGet:
               path: /login

@@ -7,6 +7,7 @@ serverImage:
 
 serverService:
   type: ClusterIP
+  ip: "10.254.34.10"
   ldapPublicPort: 389
   ldapsPublicPort: 636
 
@@ -42,6 +43,7 @@ adminImage:
 
 adminService:
   type: ClusterIP
+  ip: "10.254.34.11"
   adminPublicPort: 8089
 
 adminResources: {}

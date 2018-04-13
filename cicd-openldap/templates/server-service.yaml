@@ -9,7 +9,7 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   type: {{ .Values.serverService.type }}
-  clusterIP: 10.254.34.11
+  clusterIP: {{ .Values.serverService.ip }}
   ports:
     - port: {{ .Values.serverService.ldapPublicPort }}
       targetPort: ldap

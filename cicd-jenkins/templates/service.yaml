@@ -9,12 +9,12 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   type: {{ .Values.service.type }}
-  clusterIP: 10.254.34.10
+  clusterIP: {{ .Values.service.ip }}
   ports:
-    - port: 8080
+    - port: {{ .Values.service.httpPort }}
       targetPort: 8080
       name: http
-    - port: 50000
+    - port: {{ .Values.service.slavePort }}
       targetPort: 50000
       name: slave-listener
   selector:

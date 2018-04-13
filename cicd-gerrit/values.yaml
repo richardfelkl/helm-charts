@@ -6,19 +6,19 @@ serverImage:
   pullPolicy: IfNotPresent
 
 serverService:
-  ip: "10.254.34.12"
+  ip: "10.254.34.13"
   type: ClusterIP
   httpPort: 8080
   sshPort: 29418
 
 settings:
   authType: LDAP
-  ldapServer: "ldap://10.254.34.11"
+  ldapServer: "ldap://10.254.34.10"
   ldapAccountBase: "ou=people,dc=mcp-drivetrain,dc=local"
   ldapGroupBasse: "ou=groups,dc=mcp-drivetrain,dc=local"
   ldapUsername: "cn=admin,dc=mcp-drivetrain,dc=local"
   ldapPassword: r00tme
-  webUrl: "http://10.254.34.12:8080"
+  webUrl: "http://10.254.34.13:8080"
   httpdListenUrl: "http://*:8080/"
   gerritAdminPubKey: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDDmE8T+ddAWd5KiSRqFjnKxSZ/drs2TWxWxerjyv6yuNiHf30QaOYOBXP/WzhSX23TEI7CDmYckjt9sFZXSrhxxGzZgxoNlYfcqULdesoelbFjUnsT8Taa7Gq2X90ZF3jtgLZbxl3yL5KSKCnys0XFFvAOiU2HnVWOl0ji8caTWDg75hRe8ir0/qqVQj0mMcvlVRqTCywhFfRWwrt4HEFN+UG/Z17+CX26hZrP4wfWGxs4Wb3PoOk5htdhMkjoemZRX0Y48sol2x9WEQCVxx29LWvbMCrufcPSwIf9j4TVnfsTMHUsXFBfUr52YlWEvMwjGfm9kW1SVL/AX9cryXIZ"
   gerritAdminPassword: r00tme
