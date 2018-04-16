@@ -34,7 +34,7 @@ spec:
             - name: DATABASE_TYPE
               value: "mysql"
             - name: DB_PORT_3306_TCP_ADDR
-              value: {{ template "cicd-gerrit.fullname" . }}-database
+              value: "127.0.0.1"
             - name: DB_ENV_MYSQL_USER
               value: "gerrit"
             - name: DB_ENV_MYSQL_PASSWORD
@@ -69,14 +69,11 @@ spec:
               value: "true"
             - name: JAVA_OPTIONS
               value: "{{ .Values.settings.javaOpts }}"
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
           readinessProbe:
             httpGet:
               path: /
               port: http
+              initialDelaySeconds: 180
           volumeMounts:
             - mountPath: /var/gerrit/review_site
               name: review-site
@@ -97,6 +94,10 @@ spec:
         - name: {{ .Chart.Name }}-database
           image: "{{ .Values.databaseImage.repository }}:{{ .Values.databaseImage.tag }}"
           imagePullPolicy: {{ .Values.databaseImage.pullPolicy }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
